@@ -4,11 +4,14 @@ import 'package:get/get.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../app/utils/helpers.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/rider/rider_controller.dart';
 import '../../data/models/order_model.dart';
 import '../../widgets/empty_widget.dart';
+import '../../widgets/greeting_header.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/order_status_chip.dart';
+import '../../widgets/order_status_timeline.dart';
 import '../../widgets/rider_nav.dart';
 
 class RiderHomeView extends StatelessWidget {
@@ -28,6 +31,13 @@ class RiderHomeView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              GreetingHeader(
+                name: Get.find<AuthController>().user?.fullName ?? 'Rider',
+                roleLabel: 'Delivery partner',
+                icon: Icons.delivery_dining,
+                color: AppTheme.primary,
+              ),
+              SizedBox(height: 16.h),
               // Availability switch
               Obx(() => Container(
                     padding: EdgeInsets.all(16.w),
@@ -156,6 +166,8 @@ class _OrderCard extends StatelessWidget {
               ),
             ],
           ),
+          SizedBox(height: 12.h),
+          OrderStatusTimeline(status: order.status),
         ],
       ),
     );

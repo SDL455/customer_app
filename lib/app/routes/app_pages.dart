@@ -1,4 +1,5 @@
 import 'package:foodpanda_app/app/routes/app_routes.dart';
+import 'package:foodpanda_app/views/merchant/edit_product_view.dart';
 import 'package:get/get.dart';
 
 import '../../views/splash/splash_view.dart';
@@ -15,7 +16,7 @@ import '../../views/customer/profile_view.dart';
 import '../../views/merchant/home_view.dart';
 import '../../views/merchant/orders_view.dart';
 import '../../views/merchant/add_product_view.dart';
-import '../../views/merchant/edit_product_view.dart';
+import '../../views/merchant/edit_store_view.dart';
 import '../../views/merchant/profile_view.dart';
 import '../../views/rider/home_view.dart';
 import '../../views/rider/orders_view.dart';
@@ -101,14 +102,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.merchantAddProduct,
       page: () => AddProductView(),
-      binding: BindingsBuilder(
-        () => Get.lazyPut(
-          () => MerchantController(
+      binding: BindingsBuilder(() => Get.lazyPut(() => MerchantController(
             Get.find<FirestoreService>(),
             Get.find<StorageService>(),
-          ),
-        ),
-      ),
+          ))),
     ),
     GetPage(
       name: AppRoutes.merchantEditProduct,
@@ -121,6 +118,14 @@ class AppPages {
     GetPage(
       name: AppRoutes.merchantProfile,
       page: () => const MerchantProfileView(),
+      binding: BindingsBuilder(() => Get.lazyPut(() => MerchantController(
+            Get.find<FirestoreService>(),
+            Get.find<StorageService>(),
+          ))),
+    ),
+    GetPage(
+      name: AppRoutes.merchantEditStore,
+      page: () => EditStoreView(),
       binding: BindingsBuilder(() => Get.lazyPut(() => MerchantController(
             Get.find<FirestoreService>(),
             Get.find<StorageService>(),

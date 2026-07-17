@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../app/routes/app_routes.dart';
 import '../../app/theme/app_theme.dart';
 import '../../app/utils/helpers.dart';
 import '../../controllers/auth_controller.dart';
@@ -87,8 +88,12 @@ class MerchantProfileView extends StatelessWidget {
                   ),
                 )),
             SizedBox(height: 10.h),
-            _tile(Icons.storefront, 'Store details',
-                ctrl.restaurant.value?.address ?? 'Not set', () {}),
+            Obx(() => _tile(
+                  Icons.storefront,
+                  'Store details',
+                  ctrl.restaurant.value?.address ?? 'Not set',
+                  () => Get.toNamed(AppRoutes.merchantEditStore),
+                )),
             _tile(Icons.star, 'Store rating',
                 '${ctrl.restaurant.value?.rating.toStringAsFixed(1) ?? '0.0'} (${ctrl.restaurant.value?.ratingCount ?? 0} reviews)',
                 () {}),

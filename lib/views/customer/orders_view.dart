@@ -33,19 +33,18 @@ class _CustomerOrdersViewState extends State<CustomerOrdersView> {
       appBar: AppBar(title: const Text('My orders')),
       body: Column(
         children: [
-          Obx(() => Container(
-                margin: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Row(
-                  children: [
-                    _tabBtn('Active', 0),
-                    _tabBtn('History', 1),
-                  ],
-                ),
-              )),
+          Obx(
+            () => Container(
+              margin: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Row(
+                children: [_tabBtn('Active', 0), _tabBtn('History', 1)],
+              ),
+            ),
+          ),
           Expanded(
             child: Obx(() {
               if (ctrl.orders.isEmpty) {
@@ -57,11 +56,13 @@ class _CustomerOrdersViewState extends State<CustomerOrdersView> {
               }
               final active = ctrl.orders
                   .where(
-                      (o) => o.status != 'delivered' && o.status != 'cancelled')
+                    (o) => o.status != 'delivered' && o.status != 'cancelled',
+                  )
                   .toList();
               final history = ctrl.orders
                   .where(
-                      (o) => o.status == 'delivered' || o.status == 'cancelled')
+                    (o) => o.status == 'delivered' || o.status == 'cancelled',
+                  )
                   .toList();
               final list = _tab.value == 0 ? active : history;
               if (list.isEmpty) {
@@ -74,8 +75,8 @@ class _CustomerOrdersViewState extends State<CustomerOrdersView> {
               return ListView.separated(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 itemCount: list.length,
-                separatorBuilder: (_, __) => SizedBox(height: 12.h),
                 itemBuilder: (_, i) => _OrderTile(order: list[i]),
+                separatorBuilder: (_, __) => SizedBox(height: 12.h),
               );
             }),
           ),
@@ -87,25 +88,30 @@ class _CustomerOrdersViewState extends State<CustomerOrdersView> {
 
   Widget _tabBtn(String label, int index) {
     return Expanded(
-      child: Obx(() => GestureDetector(
-            onTap: () => _tab.value = index,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 12.h),
-              decoration: BoxDecoration(
-                color:
-                    _tab.value == index ? AppTheme.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-              child: Center(
-                child: Text(label,
-                    style: TextStyle(
-                        color: _tab.value == index
-                            ? Colors.white
-                            : AppTheme.textSecondary,
-                        fontWeight: FontWeight.w600)),
+      child: Obx(
+        () => GestureDetector(
+          onTap: () => _tab.value = index,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            decoration: BoxDecoration(
+              color:
+                  _tab.value == index ? AppTheme.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: _tab.value == index
+                      ? Colors.white
+                      : AppTheme.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -117,8 +123,10 @@ class _OrderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.customerOrderDetail,
-          parameters: {'id': order.id}),
+      onTap: () => Get.toNamed(
+        AppRoutes.customerOrderDetail,
+        parameters: {'id': order.id},
+      ),
       child: Container(
         padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
@@ -138,8 +146,10 @@ class _OrderTile extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(order.restaurantName,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  child: Text(
+                    order.restaurantName,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ),
                 OrderStatusChip(status: order.status),
               ],
@@ -154,12 +164,18 @@ class _OrderTile extends StatelessWidget {
             SizedBox(height: 8.h),
             Row(
               children: [
-                Text(Helpers.formatDate(order.createdAt),
-                    style: const TextStyle(
-                        fontSize: 12, color: AppTheme.textSecondary)),
+                Text(
+                  Helpers.formatDate(order.createdAt),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
                 const Spacer(),
-                Text(Helpers.formatCurrency(order.total),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(
+                  Helpers.formatCurrency(order.total),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
               ],
             ),
           ],

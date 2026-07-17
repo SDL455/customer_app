@@ -9,6 +9,7 @@ import '../../data/models/order_model.dart';
 import '../../widgets/empty_widget.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/order_status_chip.dart';
+import '../../widgets/order_status_timeline.dart';
 import '../../widgets/rider_nav.dart';
 
 class RiderOrdersView extends StatelessWidget {
@@ -112,6 +113,8 @@ class _DeliveryCard extends StatelessWidget {
                 ),
             ],
           ),
+          SizedBox(height: 12.h),
+          OrderStatusTimeline(status: order.status),
         ],
       ),
     );

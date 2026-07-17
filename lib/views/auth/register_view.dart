@@ -4,16 +4,17 @@ import 'package:get/get.dart';
 
 import '../../app/routes/app_routes.dart';
 import '../../app/theme/app_theme.dart';
+import '../../app/utils/helpers.dart';
 import '../../app/utils/validators.dart';
 import '../../controllers/auth_controller.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/custom_text_field.dart';
+import '../../widgets/auth_layout.dart';
 
-/// Customer self-registration. Merchants/Riders are provisioned by admin.
+/// Customer self-registration (only customers sign up here; merchants &
+/// riders are provisioned by the admin).
 class RegisterView extends StatelessWidget {
   RegisterView({super.key});
 
-  final _formKey = GlobalKey<FormState>();
+  final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _phone = TextEditingController();
@@ -23,108 +24,137 @@ class RegisterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create account'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Join as a Customer',
-                    style: TextStyle(
-                        fontSize: 22.sp, fontWeight: FontWeight.bold)),
-                SizedBox(height: 4.h),
-                const Text('Order food from your favorite restaurants.',
-                    style: TextStyle(color: AppTheme.textSecondary)),
-                SizedBox(height: 20.h),
-                CustomTextField(
-                  label: 'Full name',
-                  hint: 'Jane Doe',
-                  controller: _name,
-                  prefixIcon: const Icon(Icons.person_outline),
-                  validator: (v) => Validators.required(v, field: 'Name'),
-                ),
-                CustomTextField(
-                  label: 'Email',
-                  hint: 'you@example.com',
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  validator: Validators.email,
-                ),
-                CustomTextField(
-                  label: 'Phone',
-                  hint: '+856 20 1234 5678',
-                  controller: _phone,
-                  keyboardType: TextInputType.phone,
-                  prefixIcon: const Icon(Icons.phone_outlined),
-                  validator: Validators.phone,
-                ),
-                Obx(() => CustomTextField(
+    return AuthLayout(
+      title: 'Create your account',
+      subtitle: 'Join FoodPanda as a customer in seconds.',
+      features: const [
+        'Browse restaurants & categories',
+        'Fast checkout with your cart',
+        'Track orders & rate your meals',
+      ],
+      form: Form(
+        key: _form,
+        child: Column(
+          children: [
+            _field(
+              label: 'Full name',
+              controller: _name,
+              icon: Icons.person_outline,
+              validator: (v) => v!.isEmpty ? 'Required' : null,
+            ),
+            _field(
+              label: 'Email',
+              controller: _email,
+              icon: Icons.email_outlined,
+              validator: Validators.email,
+            ),
+            _field(
+              label: 'Phone',
+              controller: _phone,
+              icon: Icons.phone_outlined,
+              validator: Validators.phone,
+            ),
+            Obx(() => _field(
                   label: 'Password',
-                  hint: '••••••••',
                   controller: _password,
-                  obscureText: auth.obscurePassword.value,
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(auth.obscurePassword.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: auth.togglePassword,
-                  ),
+                  icon: Icons.lock_outline,
+                  obscure: auth.obscurePassword.value,
+                  toggle: () => auth.togglePassword(),
                   validator: Validators.password,
                 )),
-                CustomTextField(
-                  label: 'Confirm password',
-                  hint: '••••••••',
-                  controller: _confirm,
-                  obscureText: true,
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  validator: (v) => Validators.confirmPassword(v, _password.text),
-                ),
-                SizedBox(height: 8.h),
-                Obx(() => CustomButton(
-                  label: 'Create account',
-                  isLoading: auth.isLoading.value,
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      auth.registerCustomer(
-                        fullName: _name.text,
-                        email: _email.text,
-                        password: _password.text,
-                        phone: _phone.text,
-                      );
-                    }
-                  },
+            _field(
+              label: 'Confirm password',
+              controller: _confirm,
+              icon: Icons.lock_outline,
+              obscure: true,
+              validator: (v) => Validators.confirmPassword(v, _password.text),
+            ),
+            SizedBox(height: 8.h),
+            Obx(() => SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: auth.isLoading.value
+                        ? null
+                        : () {
+                            if (_form.currentState!.validate()) {
+                              auth.registerCustomer(
+                                fullName: _name.text,
+                                email: _email.text,
+                                password: _password.text,
+                                phone: _phone.text,
+                              );
+                            }
+                          },
+                    child: auth.isLoading.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation(Colors.white)),
+                          )
+                        : const Text('Create account'),
+                  ),
                 )),
-                SizedBox(height: 16.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Already have an account? ',
-                        style: TextStyle(color: AppTheme.textSecondary)),
-                    GestureDetector(
-                      onTap: () => Get.offNamed(AppRoutes.login),
-                      child: Text('Sign in',
-                          style: TextStyle(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ],
+            SizedBox(height: 14.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Already have an account? ',
+                    style: TextStyle(color: AppTheme.textSecondary)),
+                GestureDetector(
+                  onTap: () => Get.offNamed(AppRoutes.login),
+                  child: Text('Sign in',
+                      style: TextStyle(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    bool obscure = false,
+    VoidCallback? toggle,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 14.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+            child: Text(label,
+                style: const TextStyle(
+                    fontSize: 13, color: AppTheme.textSecondary)),
+          ),
+          TextFormField(
+            controller: controller,
+            obscureText: obscure,
+            validator: validator,
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon),
+              suffixIcon: toggle != null
+                  ? IconButton(
+                      icon: Icon(obscure
+                          ? Icons.visibility_off
+                          : Icons.visibility),
+                      onPressed: toggle,
+                    )
+                  : null,
+              hintText: label,
+            ),
+          ),
+        ],
       ),
     );
   }

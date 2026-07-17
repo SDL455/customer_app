@@ -10,6 +10,7 @@ import '../../widgets/empty_widget.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/merchant_nav.dart';
 import '../../widgets/order_status_chip.dart';
+import '../../widgets/order_status_timeline.dart';
 
 class MerchantOrdersView extends StatelessWidget {
   const MerchantOrdersView({super.key});
@@ -102,10 +103,25 @@ class _OrderCard extends StatelessWidget {
               Text(Helpers.formatCurrency(order.total),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               const Spacer(),
-              if (order.status == 'pending')
+              if (order.status == 'pending') ...[
+                OutlinedButton(
+                  onPressed: () => ctrl.rejectOrder(order),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppTheme.error),
+                    foregroundColor: AppTheme.error,
+                  ),
+                  child: const Text('Reject'),
+                ),
+                SizedBox(width: 8.w),
                 ElevatedButton(
                   onPressed: () => ctrl.acceptOrder(order),
                   child: const Text('Accept'),
+                ),
+              ],
+              if (order.status == 'accepted')
+                ElevatedButton(
+                  onPressed: () => ctrl.startPreparing(order),
+                  child: const Text('Start preparing'),
                 ),
               if (order.status == 'preparing')
                 OutlinedButton(
@@ -124,6 +140,8 @@ class _OrderCard extends StatelessWidget {
                 ),
             ],
           ),
+          SizedBox(height: 12.h),
+          OrderStatusTimeline(status: order.status),
         ],
       ),
     );

@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../data/models/category_model.dart';
 import '../../data/models/restaurant_model.dart';
 import '../../services/firestore_service.dart';

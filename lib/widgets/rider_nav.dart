@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
 import '../app/routes/app_routes.dart';
 import '../app/theme/app_theme.dart';
 
@@ -12,8 +14,7 @@ class RiderBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       _Item(Icons.explore_rounded, 'Available', AppRoutes.riderHome),
-      _Item(Icons.delivery_dining_rounded, 'My deliveries',
-          AppRoutes.riderOrders),
+      _Item(Icons.delivery_dining_rounded, 'My deliveries', AppRoutes.riderOrders),
       _Item(Icons.person_rounded, 'Profile', AppRoutes.riderProfile),
     ];
     return BottomNavigationBar(

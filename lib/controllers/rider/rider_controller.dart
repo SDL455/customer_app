@@ -27,6 +27,20 @@ class RiderController extends GetxController {
     _bind();
   }
 
+  Future<void> toggleAvailability() async {
+    final auth = Get.find<AuthController>();
+    final user = auth.user;
+    if (user == null) return;
+    isAvailable.toggle();
+    final updated = user.copyWith(isAvailable: isAvailable.value);
+    final res = await auth.updateCurrentUser(updated);
+    res.fold(
+      (e) {},
+      (_) => Helpers.showInfo(
+          isAvailable.value ? 'You are now online' : 'You are offline'),
+    );
+  }
+
   void _bind() {
     _firestoreService.availableRiderOrdersStream().listen((list) {
       availableOrders.value = list.where((o) => o.riderId == null).toList();
@@ -35,18 +49,6 @@ class RiderController extends GetxController {
       myOrders.value = list;
       isLoading.value = false;
     });
-  }
-
-  Future<void> toggleAvailability() async {
-    isAvailable.toggle();
-    final auth = Get.find<AuthController>();
-    final updated = auth.user!.copyWith(isAvailable: isAvailable.value);
-    final res = await auth.updateCurrentUser(updated);
-    res.fold(
-      (e) {},
-      (_) => Helpers.showInfo(
-          isAvailable.value ? 'You are now online' : 'You are offline'),
-    );
   }
 
   Future<void> acceptOrder(OrderModel order) async {

@@ -21,6 +21,7 @@ class AppRoutes {
   static const merchantAddProduct = '/merchant/product/add';
   static const merchantEditProduct = '/merchant/product/edit/:id';
   static const merchantProfile = '/merchant/profile';
+  static const merchantEditStore = '/merchant/store/edit';
 
   // Rider
   static const riderHome = '/rider/home';

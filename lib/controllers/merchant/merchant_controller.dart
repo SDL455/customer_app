@@ -87,31 +87,37 @@ class MerchantController extends GetxController {
           createdAt: now,
         );
         final res = await _firestoreService.updateProduct(product);
-        return res.fold((e) {
-          Helpers.showError(e);
-          return false;
-        }, (_) {
-          Helpers.showSuccess('Product updated');
-          return true;
-        });
+        return res.fold(
+          (e) {
+            Helpers.showError(e);
+            return false;
+          },
+          (_) {
+            Helpers.showSuccess('Product updated');
+            return true;
+          },
+        );
       }
       final updated = existing.copyWith(
         name: name,
         description: description,
         price: price,
         discountedPrice: discountedPrice,
-        // categoryName: categoryName,
+        categoryName: categoryName,
         isPopular: isPopular,
         imageUrl: imageUrl ?? existing.imageUrl,
       );
       final res = await _firestoreService.updateProduct(updated);
-      return res.fold((e) {
-        Helpers.showError(e);
-        return false;
-      }, (_) {
-        Helpers.showSuccess('Product updated');
-        return true;
-      });
+      return res.fold(
+        (e) {
+          Helpers.showError(e);
+          return false;
+        },
+        (_) {
+          Helpers.showSuccess('Product updated');
+          return true;
+        },
+      );
     } else {
       final product = ProductModel(
         id: '',
@@ -126,64 +132,137 @@ class MerchantController extends GetxController {
         createdAt: now,
       );
       final res = await _firestoreService.addProduct(product);
-      return res.fold((e) {
-        Helpers.showError(e);
-        return false;
-      }, (_) {
-        Helpers.showSuccess('Product added');
-        return true;
-      });
+      return res.fold(
+        (e) {
+          Helpers.showError(e);
+          return false;
+        },
+        (_) {
+          Helpers.showSuccess('Product added');
+          return true;
+        },
+      );
     }
   }
 
   Future<void> deleteProduct(String id) async {
     final ok = await Helpers.confirm(
-        title: 'Delete product', message: 'This cannot be undone.');
+      title: 'Delete product',
+      message: 'This cannot be undone.',
+    );
     if (!ok) return;
     final res = await _firestoreService.deleteProduct(id);
     res.fold(
-        (e) => Helpers.showError(e), (_) => Helpers.showSuccess('Deleted'));
+      (e) => Helpers.showError(e),
+      (_) => Helpers.showSuccess('Deleted'),
+    );
   }
 
   Future<String?> pickAndUploadImage(String folder) async {
     final res = await _storageService.pickImage();
-    return res.fold((e) {
-      Helpers.showError(e);
-      return null;
-    }, (file) async {
-      if (file == null) return null;
-      final path = '$folder/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final up = await _storageService.uploadImage(file: file, path: path);
-      return up.fold((e) {
+    return res.fold(
+      (e) {
         Helpers.showError(e);
         return null;
-      }, (url) => url);
-    });
+      },
+      (file) async {
+        if (file == null) return null;
+        final path = '$folder/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final up = await _storageService.uploadImage(file: file, path: path);
+        return up.fold((e) {
+          Helpers.showError(e);
+          return null;
+        }, (url) => url);
+      },
+    );
   }
 
   // ---------------- Orders ----------------
   Future<void> acceptOrder(OrderModel order) async {
     final updated = order.copyWith(
-      status: AppConstants.orderPreparing,
-      // merchantId: merchantId,
+      status: AppConstants.orderAccepted,
+      merchantId: merchantId,
       acceptedAt: DateTime.now(),
     );
     final res = await _firestoreService.updateOrder(updated);
-    res.fold((e) => Helpers.showError(e),
-        (_) => Helpers.showSuccess('Order accepted'));
+    res.fold(
+      (e) => Helpers.showError(e),
+      (_) => Helpers.showSuccess('Order accepted'),
+    );
+  }
+
+  Future<void> startPreparing(OrderModel order) async {
+    final updated = order.copyWith(status: AppConstants.orderPreparing);
+    final res = await _firestoreService.updateOrder(updated);
+    res.fold(
+      (e) => Helpers.showError(e),
+      (_) => Helpers.showInfo('Preparing order'),
+    );
   }
 
   Future<void> markReady(OrderModel order) async {
     final updated = order.copyWith(status: AppConstants.orderReady);
     final res = await _firestoreService.updateOrder(updated);
-    res.fold((e) => Helpers.showError(e),
-        (_) => Helpers.showInfo('Marked ready for pickup'));
+    res.fold(
+      (e) => Helpers.showError(e),
+      (_) => Helpers.showInfo('Marked ready for pickup'),
+    );
+  }
+
+  Future<void> rejectOrder(OrderModel order) async {
+    final ok = await Helpers.confirm(
+      title: 'Reject order',
+      message: 'The customer will be notified. This cannot be undone.',
+    );
+    if (!ok) return;
+    final updated = order.copyWith(status: AppConstants.orderCancelled);
+    final res = await _firestoreService.updateOrder(updated);
+    res.fold(
+      (e) => Helpers.showError(e),
+      (_) => Helpers.showInfo('Order rejected'),
+    );
+  }
+
+  // ---------------- Store details ----------------
+  Future<bool> saveStoreDetails({
+    required String name,
+    required String description,
+    required String address,
+    required double deliveryFee,
+    required double minOrder,
+    required int deliveryTimeMin,
+  }) async {
+    if (restaurant.value == null) {
+      Helpers.showError('No restaurant linked to this account.');
+      return false;
+    }
+    final updated = restaurant.value!.copyWith(
+      name: name,
+      description: description,
+      address: address,
+      deliveryFee: deliveryFee,
+      minOrder: minOrder,
+      deliveryTimeMin: deliveryTimeMin,
+    );
+    final res = await _firestoreService.updateRestaurant(updated);
+    return res.fold(
+      (e) {
+        Helpers.showError(e);
+        return false;
+      },
+      (_) {
+        restaurant.value = updated;
+        Helpers.showSuccess('Store details updated');
+        return true;
+      },
+    );
   }
 
   Future<void> toggleStoreOpen() async {
     if (restaurant.value == null) return;
-    final updated =
-        restaurant.value!.copyWith(isOpen: !restaurant.value!.isOpen);
+    final updated = restaurant.value!.copyWith(
+      isOpen: !restaurant.value!.isOpen,
+    );
     final res = await _firestoreService.updateRestaurant(updated);
     res.fold((e) => Helpers.showError(e), (_) => restaurant.value = updated);
   }

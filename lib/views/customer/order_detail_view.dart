@@ -9,6 +9,7 @@ import '../../controllers/customer/order_controller.dart';
 import '../../services/firestore_service.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/order_status_chip.dart';
+import '../../widgets/order_status_timeline.dart';
 
 class CustomerOrderDetailView extends StatelessWidget {
   CustomerOrderDetailView({super.key});
@@ -66,6 +67,8 @@ class CustomerOrderDetailView extends StatelessWidget {
                     ],
                   ),
                 ),
+                SizedBox(height: 14.h),
+                OrderStatusTimeline(status: order.status),
                 SizedBox(height: 16.h),
                 Text('Items',
                     style: TextStyle(

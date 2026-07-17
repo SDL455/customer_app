@@ -1,132 +1,152 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:foodpanda_app/app/utils/validators.dart';
 import 'package:get/get.dart';
-
 import '../../app/routes/app_routes.dart';
 import '../../app/theme/app_theme.dart';
-import '../../app/utils/validators.dart';
 import '../../controllers/auth_controller.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/custom_text_field.dart';
+import '../../widgets/auth_layout.dart';
 
 /// Shared sign-in screen for Customers, Merchants and Riders.
 class LoginView extends StatelessWidget {
   LoginView({super.key});
 
-  final _formKey = GlobalKey<FormState>();
+  final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 24.h),
-                Center(
-                  child: Container(
-                    padding: EdgeInsets.all(20.w),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.delivery_dining,
-                        size: 52.sp, color: AppTheme.primary),
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                Center(
-                  child: Text('Welcome back',
-                      style: TextStyle(
-                          fontSize: 24.sp, fontWeight: FontWeight.bold)),
-                ),
-                SizedBox(height: 6.h),
-                Center(
-                  child: Text(
-                    'Sign in to continue to FoodPanda',
-                    style: const TextStyle(color: AppTheme.textSecondary),
-                  ),
-                ),
-                SizedBox(height: 28.h),
-                CustomTextField(
-                  label: 'Email',
-                  hint: 'you@example.com',
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  validator: Validators.email,
-                ),
-                Obx(() => CustomTextField(
+    return AuthLayout(
+      title: 'Welcome back',
+      subtitle: 'Sign in to continue to FoodPanda.',
+      features: const [
+        'Customers — order from top restaurants',
+        'Merchants — manage your store & orders',
+        'Riders — accept & complete deliveries',
+      ],
+      form: Form(
+        key: _form,
+        child: Column(
+          children: [
+            _field(
+              label: 'Email',
+              controller: _email,
+              icon: Icons.email_outlined,
+              validator: Validators.email,
+            ),
+            Obx(() => _field(
                   label: 'Password',
-                  hint: '••••••••',
                   controller: _password,
-                  obscureText: auth.obscurePassword.value,
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(auth.obscurePassword.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: auth.togglePassword,
-                  ),
+                  icon: Icons.lock_outline,
+                  obscure: auth.obscurePassword.value,
+                  toggle: () => auth.togglePassword(),
                   validator: Validators.password,
                 )),
-                SizedBox(height: 8.h),
-                Obx(() => CustomButton(
-                  label: 'Sign In',
-                  isLoading: auth.isLoading.value,
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      auth.login(email: _email.text, password: _password.text);
-                    }
-                  },
+            SizedBox(height: 8.h),
+            Obx(() => SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: auth.isLoading.value
+                        ? null
+                        : () {
+                            if (_form.currentState!.validate()) {
+                              auth.login(
+                                  email: _email.text, password: _password.text);
+                            }
+                          },
+                    child: auth.isLoading.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation(Colors.white)),
+                          )
+                        : const Text('Sign In'),
+                  ),
                 )),
-                SizedBox(height: 18.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("New here? ",
-                        style: TextStyle(color: AppTheme.textSecondary)),
-                    GestureDetector(
-                      onTap: () => Get.toNamed(AppRoutes.register),
-                      child: Text('Create a customer account',
-                          style: TextStyle(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24.h),
-                Container(
-                  padding: EdgeInsets.all(14.w),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryLight,
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline, color: AppTheme.primary),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Merchant & Rider accounts are created by the admin. '
-                          'If you are one, sign in with the credentials provided.',
-                          style: TextStyle(fontSize: 12, color: AppTheme.primaryDark),
-                        ),
-                      ),
-                    ],
-                  ),
+            SizedBox(height: 14.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("New here? ",
+                    style: TextStyle(color: AppTheme.textSecondary)),
+                GestureDetector(
+                  onTap: () => Get.toNamed(AppRoutes.register),
+                  child: Text('Create a customer account',
+                      style: TextStyle(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
-          ),
+            SizedBox(height: 18.h),
+            Container(
+              padding: EdgeInsets.all(14.w),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryLight,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, color: AppTheme.primary),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Merchant & Rider accounts are created by the admin. '
+                      'If you are one, sign in with the credentials provided.',
+                      style:
+                          TextStyle(fontSize: 12, color: AppTheme.primaryDark),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    bool obscure = false,
+    VoidCallback? toggle,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 14.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+            child: Text(label,
+                style: const TextStyle(
+                    fontSize: 13, color: AppTheme.textSecondary)),
+          ),
+          TextFormField(
+            controller: controller,
+            obscureText: obscure,
+            validator: validator,
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon),
+              suffixIcon: toggle != null
+                  ? IconButton(
+                      icon: Icon(
+                          obscure ? Icons.visibility_off : Icons.visibility),
+                      onPressed: toggle,
+                    )
+                  : null,
+              hintText: label,
+            ),
+          ),
+        ],
       ),
     );
   }

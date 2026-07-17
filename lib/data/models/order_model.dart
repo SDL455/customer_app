@@ -169,6 +169,7 @@ class OrderModel extends Equatable {
 
   OrderModel copyWith({
     String? status,
+    String? merchantId,
     String? riderId,
     bool? isPaid,
     DateTime? acceptedAt,
@@ -182,7 +183,7 @@ class OrderModel extends Equatable {
       customerPhone: customerPhone,
       restaurantId: restaurantId,
       restaurantName: restaurantName,
-      merchantId: merchantId,
+      merchantId: merchantId ?? this.merchantId,
       riderId: riderId ?? this.riderId,
       items: items,
       subtotal: subtotal,

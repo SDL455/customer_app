@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
+
 import '../../app/routes/app_routes.dart';
 import '../../app/theme/app_theme.dart';
 import '../../controllers/customer/home_controller.dart';
@@ -19,12 +20,6 @@ class CustomerHomeView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('FoodPanda'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => _showSearch(context, ctrl),
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -63,6 +58,33 @@ class CustomerHomeView extends StatelessWidget {
               ],
             ),
           ),
+          // Live search bar
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: TextField(
+                onChanged: ctrl.onSearch,
+                decoration: InputDecoration(
+                  hintText: 'Search restaurants or food...',
+                  prefixIcon: Icon(Icons.search, color: AppTheme.primary),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 8.h),
           Expanded(
             child: Obx(() {
               if (ctrl.isLoading.value && ctrl.restaurants.isEmpty) {

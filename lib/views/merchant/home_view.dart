@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import '../../app/routes/app_routes.dart';
 import '../../app/theme/app_theme.dart';
 import '../../app/utils/helpers.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/merchant/merchant_controller.dart';
+import '../../widgets/greeting_header.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/merchant_nav.dart';
 
@@ -61,6 +63,12 @@ class MerchantHomeView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              GreetingHeader(
+                name: Get.find<AuthController>().user?.fullName ?? 'Partner',
+                roleLabel: 'Merchant partner',
+                icon: Icons.storefront,
+              ),
+              SizedBox(height: 16.h),
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(18.w),
